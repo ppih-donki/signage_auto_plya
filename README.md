@@ -1,0 +1,1 @@
+# signage_auto_plya
