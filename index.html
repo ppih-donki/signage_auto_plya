@@ -35,7 +35,6 @@
     }
     .media.show { opacity: 1; }
 
-    /* 16:9など横長は画面いっぱい */
     @media (min-aspect-ratio: 16/9) {
       .media { object-fit: cover; }
     }
@@ -85,7 +84,6 @@
 </head>
 <body>
   <div id="stage" aria-label="signage slideshow"></div>
-
   <div id="loading">読み込み中...</div>
 
   <div id="hint">
@@ -103,9 +101,12 @@
     // =========================
     // 設定
     // =========================
-    const MANIFEST_URL = "manifest.json"; // GitHub Actionsが生成する
-    const IMAGE_DEFAULT_MS = 8000;        // 画像の表示時間（8秒）
+    const MANIFEST_URL = "manifest.json";
+    const IMAGE_DEFAULT_MS = 8000;        // 画像は8秒
     const FADE_MS = 600;
+
+    // ★追加：1時間に1回 自動リロード（ミリ秒）
+    const AUTO_RELOAD_MS = 60 * 60 * 1000;
 
     // =========================
     // DOM
@@ -148,7 +149,7 @@
         v.className = "media";
         v.src = item.src;
         v.playsInline = true;
-        v.muted = true;   // 自動再生のため
+        v.muted = true;
         v.autoplay = false;
         v.loop = false;
         v.controls = false;
@@ -219,10 +220,8 @@
         return;
       }
 
-      // 動画は完走してから次へ
       nextEl.onended = () => goNext();
 
-      // 保険（万一endedが飛ばないケース用）
       if (Number.isFinite(nextEl.duration) && nextEl.duration > 0) {
         const fallbackMs = Math.ceil(nextEl.duration * 1000) + 500;
         timerId = setTimeout(() => goNext(), fallbackMs);
@@ -253,17 +252,12 @@
       }
     });
 
-    // =========================
-    // manifest.json 読み込み
-    // =========================
     async function loadManifest() {
       const res = await fetch(MANIFEST_URL, { cache: "no-store" });
       if (!res.ok) throw new Error("manifest.json を取得できませんでした（HTTP " + res.status + "）");
 
       const text = await res.text();
-      if (!text || !text.trim()) {
-        throw new Error("manifest.json が空です（0バイト）");
-      }
+      if (!text || !text.trim()) throw new Error("manifest.json が空です（0バイト）");
 
       let data;
       try {
@@ -272,7 +266,6 @@
         throw new Error("manifest.json がJSONとして壊れています: " + (e?.message || String(e)));
       }
 
-      // 形式: { "files": ["images/a.jpg", "images/b.png", ...] }
       const files = Array.isArray(data.files) ? data.files : [];
       const items = files
         .filter(Boolean)
@@ -288,10 +281,22 @@
       currentIndex = 0;
     }
 
+    function setupAutoReload() {
+      // ★追加：1時間ごとにページを完全リロード
+      setTimeout(() => {
+        // キャッシュを避けたいのでURLにクエリを足す（historyを汚さない）
+        const url = new URL(location.href);
+        url.searchParams.set("_ts", String(Date.now()));
+        location.replace(url.toString());
+      }, AUTO_RELOAD_MS);
+    }
+
     async function boot() {
       try {
         await loadManifest();
         loading.classList.add("hidden");
+
+        setupAutoReload();
 
         startSlideshow();
 
