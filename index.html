@@ -78,6 +78,7 @@
       padding: 24px;
       background: #000;
       z-index: 20;
+      white-space: pre-wrap;
     }
     #loading.hidden { display: none; }
   </style>
@@ -257,8 +258,19 @@
     // =========================
     async function loadManifest() {
       const res = await fetch(MANIFEST_URL, { cache: "no-store" });
-      if (!res.ok) throw new Error("manifest.json を取得できませんでした");
-      const data = await res.json();
+      if (!res.ok) throw new Error("manifest.json を取得できませんでした（HTTP " + res.status + "）");
+
+      const text = await res.text();
+      if (!text || !text.trim()) {
+        throw new Error("manifest.json が空です（0バイト）");
+      }
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        throw new Error("manifest.json がJSONとして壊れています: " + (e?.message || String(e)));
+      }
 
       // 形式: { "files": ["images/a.jpg", "images/b.png", ...] }
       const files = Array.isArray(data.files) ? data.files : [];
@@ -270,7 +282,6 @@
           durationMs: typeFromSrc(src) === "image" ? IMAGE_DEFAULT_MS : undefined
         }));
 
-      // 空ならエラー
       if (!items.length) throw new Error("再生対象が0件です（images/ が空か、拡張子フィルタ対象外）");
 
       PLAYLIST = items;
@@ -282,7 +293,6 @@
         await loadManifest();
         loading.classList.add("hidden");
 
-        // まず自動開始を試す（ダメならヒントが出る）
         startSlideshow();
 
         setTimeout(() => {
@@ -290,7 +300,12 @@
         }, 400);
 
       } catch (e) {
-        loading.textContent = "読み込み失敗: " + (e?.message || String(e));
+        loading.textContent =
+          "読み込み失敗: " + (e?.message || String(e)) + "\n\n" +
+          "確認ポイント:\n" +
+          "1) .github/workflows/ にgenerate-manifest.ymlがあるか\n" +
+          "2) manifest.json が空でないか\n" +
+          "3) ActionsがSuccessになっているか";
       }
     }
 
