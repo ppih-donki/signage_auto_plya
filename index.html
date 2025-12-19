@@ -28,16 +28,15 @@
       inset: 0;
       width: 100%;
       height: 100%;
-      object-fit: contain;
       background: #000;
       opacity: 0;
       transition: opacity 600ms ease;
+
+      /* ★ここが要件の核：常に画面いっぱい（黒帯なし） */
+      object-fit: cover;
+      object-position: center center;
     }
     .media.show { opacity: 1; }
-
-    @media (min-aspect-ratio: 16/9) {
-      .media { object-fit: cover; }
-    }
 
     #hint {
       position: absolute;
@@ -98,27 +97,16 @@
   </div>
 
   <script>
-    // =========================
-    // 設定
-    // =========================
     const MANIFEST_URL = "manifest.json";
-    const IMAGE_DEFAULT_MS = 5000;        // 画像は8秒
+    const IMAGE_DEFAULT_MS = 8000;
     const FADE_MS = 600;
-
-    // ★追加：1時間に1回 自動リロード（ミリ秒）
     const AUTO_RELOAD_MS = 60 * 60 * 1000;
 
-    // =========================
-    // DOM
-    // =========================
     const stage = document.getElementById("stage");
     const hint = document.getElementById("hint");
     const startBtn = document.getElementById("startBtn");
     const loading = document.getElementById("loading");
 
-    // =========================
-    // 状態
-    // =========================
     let PLAYLIST = [];
     let currentIndex = 0;
     let currentEl = null;
@@ -148,12 +136,14 @@
         const v = document.createElement("video");
         v.className = "media";
         v.src = item.src;
+
         v.playsInline = true;
         v.muted = true;
         v.autoplay = false;
         v.loop = false;
         v.controls = false;
         v.preload = "auto";
+
         return v;
       } else {
         const img = document.createElement("img");
@@ -282,9 +272,7 @@
     }
 
     function setupAutoReload() {
-      // ★追加：1時間ごとにページを完全リロード
       setTimeout(() => {
-        // キャッシュを避けたいのでURLにクエリを足す（historyを汚さない）
         const url = new URL(location.href);
         url.searchParams.set("_ts", String(Date.now()));
         location.replace(url.toString());
@@ -326,4 +314,3 @@
   </script>
 </body>
 </html>
-
