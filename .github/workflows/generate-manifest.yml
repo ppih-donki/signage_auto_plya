@@ -1,4 +1,3 @@
-
 name: Generate manifest.json
 
 on:
@@ -21,31 +20,46 @@ jobs:
         shell: bash
         run: |
           set -e
-          echo '{' > manifest.json
-          echo '  "files": [' >> manifest.json
 
-          # images 配下の対象拡張子を列挙（必要なら追加）
-          mapfile -t files < <(find images -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" -o -iname "*.mp4" -o -iname "*.webm" \) | sort)
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
 
-          if [ "${#files[@]}" -eq 0 ]; then
-            echo '  ]' >> manifest.json
-            echo '}' >> manifest.json
-          else
-            for i in "${!files[@]}"; do
-              f="${files[$i]}"
-              # JSON用にエスケープ最低限
-              f_escaped=$(printf '%s' "$f" | sed 's/\\/\\\\/g; s/"/\\"/g')
-              if [ "$i" -lt $((${#files[@]}-1)) ]; then
-                echo "    \"${f_escaped}\"," >> manifest.json
-              else
-                echo "    \"${f_escaped}\"" >> manifest.json
-              fi
-            done
-            echo '  ]' >> manifest.json
-            echo '}' >> manifest.json
-          fi
+          # images/ 配下は引き続き自動スキャン
+          IMG_DIR = Path("images")
+          exts = {".jpg", ".jpeg", ".png", ".webp", ".mp4", ".webm"}
+          image_files = []
+          if IMG_DIR.exists() and IMG_DIR.is_dir():
+            for p in IMG_DIR.iterdir():
+              if p.is_file() and p.suffix.lower() in exts:
+                # GitHub Pagesで参照できる相対パスにする
+                image_files.append(str(p.as_posix()))
+          image_files.sort()
 
-          cat manifest.json
+          # 大容量動画は videos.json にURLで列挙して混在させる
+          video_urls = []
+          vp = Path("videos.json")
+          if vp.exists() and vp.is_file():
+            try:
+              data = json.loads(vp.read_text(encoding="utf-8"))
+            except Exception:
+              data = None
+
+            if isinstance(data, list):
+              candidates = data
+            elif isinstance(data, dict) and isinstance(data.get("videos"), list):
+              candidates = data.get("videos")
+            else:
+              candidates = []
+
+            for u in candidates:
+              if isinstance(u, str) and u.strip():
+                video_urls.append(u.strip())
+
+          manifest = {"files": image_files + video_urls}
+          Path("manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+          print(Path("manifest.json").read_text(encoding="utf-8"))
+          PY
 
       - name: Commit and push if changed
         shell: bash
