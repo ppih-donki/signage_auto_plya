@@ -23,6 +23,7 @@
       height: 100vh;
       background: #000;
     }
+
     .media {
       position: absolute;
       inset: 0;
@@ -31,12 +32,13 @@
       background: #000;
       opacity: 0;
       transition: opacity 600ms ease;
-
-      /* ★ここが要件の核：常に画面いっぱい（黒帯なし） */
-      object-fit: cover;
       object-position: center center;
     }
     .media.show { opacity: 1; }
+
+    /* ★ B案の肝：fit をクラスで切り替える */
+    .fit-contain { object-fit: contain; }
+    .fit-cover   { object-fit: cover; }
 
     #hint {
       position: absolute;
@@ -89,7 +91,6 @@
     <div class="box">
       <div style="font-size:18px;font-weight:700;margin-bottom:6px;">タップして再生開始</div>
       <div style="font-size:14px;opacity:0.9;">
-        Android Chromeでも状況により自動再生が止まることがあります。<br />
         1回タップすると、以降はスライドショーがループします。
       </div>
       <button id="startBtn" type="button">再生開始</button>
@@ -101,6 +102,10 @@
     const IMAGE_DEFAULT_MS = 8000;
     const FADE_MS = 600;
     const AUTO_RELOAD_MS = 60 * 60 * 1000;
+
+    // 表示領域（縦1080×1920想定）
+    const SCREEN_RATIO = 1080 / 1920; // 0.5625
+    const RATIO_TOLERANCE = 0.15;     // ±15%
 
     const stage = document.getElementById("stage");
     const hint = document.getElementById("hint");
@@ -131,19 +136,23 @@
       return "image";
     }
 
+    function decideFit(mediaW, mediaH) {
+      const ratio = mediaW / mediaH;
+      const diff = Math.abs(ratio - SCREEN_RATIO) / SCREEN_RATIO;
+      return diff <= RATIO_TOLERANCE ? "fit-cover" : "fit-contain";
+    }
+
     function makeMediaEl(item) {
       if (item.type === "video") {
         const v = document.createElement("video");
         v.className = "media";
         v.src = item.src;
-
         v.playsInline = true;
         v.muted = true;
         v.autoplay = false;
         v.loop = false;
         v.controls = false;
         v.preload = "auto";
-
         return v;
       } else {
         const img = document.createElement("img");
@@ -169,51 +178,64 @@
       }, FADE_MS + 50);
     }
 
+    async function applyFit(el, type) {
+      if (type === "image") {
+        const w = el.naturalWidth;
+        const h = el.naturalHeight;
+        el.classList.add(decideFit(w, h));
+      } else {
+        const w = el.videoWidth;
+        const h = el.videoHeight;
+        el.classList.add(decideFit(w, h));
+      }
+    }
+
     async function playItem(index) {
       clearTimer();
 
       const item = PLAYLIST[index];
-      const nextEl = makeMediaEl(item);
-      stage.appendChild(nextEl);
+      const el = makeMediaEl(item);
+      stage.appendChild(el);
 
       hideAndRemoveEl(currentEl);
-      currentEl = nextEl;
+      currentEl = el;
 
       if (item.type === "image") {
         await new Promise((resolve) => {
-          if (nextEl.complete) return resolve();
-          nextEl.onload = () => resolve();
-          nextEl.onerror = () => resolve();
+          if (el.complete) return resolve();
+          el.onload = () => resolve();
+          el.onerror = () => resolve();
         });
 
-        showEl(nextEl);
+        await applyFit(el, "image");
+        showEl(el);
 
-        const ms = Number.isFinite(item.durationMs) ? item.durationMs : IMAGE_DEFAULT_MS;
-        timerId = setTimeout(() => goNext(), ms);
+        timerId = setTimeout(() => goNext(), IMAGE_DEFAULT_MS);
         return;
       }
 
       await new Promise((resolve) => {
         const done = () => resolve();
-        nextEl.onloadedmetadata = done;
-        nextEl.oncanplay = done;
-        nextEl.onerror = done;
+        el.onloadedmetadata = done;
+        el.oncanplay = done;
+        el.onerror = done;
       });
 
-      showEl(nextEl);
+      await applyFit(el, "video");
+      showEl(el);
 
       try {
-        await nextEl.play();
+        await el.play();
       } catch (e) {
         started = false;
         hint.classList.add("show");
         return;
       }
 
-      nextEl.onended = () => goNext();
+      el.onended = () => goNext();
 
-      if (Number.isFinite(nextEl.duration) && nextEl.duration > 0) {
-        const fallbackMs = Math.ceil(nextEl.duration * 1000) + 500;
+      if (Number.isFinite(el.duration) && el.duration > 0) {
+        const fallbackMs = Math.ceil(el.duration * 1000) + 500;
         timerId = setTimeout(() => goNext(), fallbackMs);
       }
     }
@@ -244,31 +266,17 @@
 
     async function loadManifest() {
       const res = await fetch(MANIFEST_URL, { cache: "no-store" });
-      if (!res.ok) throw new Error("manifest.json を取得できませんでした（HTTP " + res.status + "）");
+      if (!res.ok) throw new Error("manifest.json を取得できませんでした");
 
-      const text = await res.text();
-      if (!text || !text.trim()) throw new Error("manifest.json が空です（0バイト）");
-
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (e) {
-        throw new Error("manifest.json がJSONとして壊れています: " + (e?.message || String(e)));
-      }
-
+      const data = await res.json();
       const files = Array.isArray(data.files) ? data.files : [];
-      const items = files
-        .filter(Boolean)
-        .map((src) => ({
-          src,
-          type: typeFromSrc(src),
-          durationMs: typeFromSrc(src) === "image" ? IMAGE_DEFAULT_MS : undefined
-        }));
 
-      if (!items.length) throw new Error("再生対象が0件です（images/ が空か、拡張子フィルタ対象外）");
+      PLAYLIST = files.map(src => ({
+        src,
+        type: typeFromSrc(src)
+      }));
 
-      PLAYLIST = items;
-      currentIndex = 0;
+      if (!PLAYLIST.length) throw new Error("再生対象が0件です");
     }
 
     function setupAutoReload() {
@@ -283,22 +291,13 @@
       try {
         await loadManifest();
         loading.classList.add("hidden");
-
         setupAutoReload();
-
         startSlideshow();
-
         setTimeout(() => {
           if (!started) hint.classList.add("show");
         }, 400);
-
       } catch (e) {
-        loading.textContent =
-          "読み込み失敗: " + (e?.message || String(e)) + "\n\n" +
-          "確認ポイント:\n" +
-          "1) .github/workflows/ にgenerate-manifest.ymlがあるか\n" +
-          "2) manifest.json が空でないか\n" +
-          "3) ActionsがSuccessになっているか";
+        loading.textContent = "読み込み失敗: " + e.message;
       }
     }
 
