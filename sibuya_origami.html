@@ -6,30 +6,65 @@
   <meta name="robots" content="noindex,nofollow" />
   <title>Origami Video</title>
   <style>
+    :root{
+      --bg:#000;
+      --fg:#fff;
+      --muted:rgba(255,255,255,0.85);
+      --card:rgba(0,0,0,0.55);
+    }
+
     html, body {
       margin: 0;
       padding: 0;
       width: 100%;
       height: 100%;
-      background: #000;
+      background: var(--bg);
       overflow: hidden;
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", Arial, sans-serif;
+      color: var(--fg);
     }
 
     .wrap {
       position: fixed;
       inset: 0;
       display: flex;
-      align-items: center;
-      justify-content: center;
+      flex-direction: column;
+      gap: 10px;
       padding: 12px;
       box-sizing: border-box;
+    }
+
+    .titlebox{
+      width: 100%;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 10px 12px;
+      background: var(--card);
+      border-radius: 12px;
+      line-height: 1.35;
+      text-align: center;
+      font-weight: 700;
+      color: var(--fg);
+      box-sizing: border-box;
+    }
+
+    .titlebox .sub{
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .videobox{
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
     }
 
     video {
       width: 100%;
       max-width: 980px;
-      max-height: calc(100vh - 24px);
+      max-height: 100%;
       background: #000;
       border-radius: 12px;
     }
@@ -38,13 +73,24 @@
 
 <body>
   <div class="wrap">
-    <video
-      controls
-      playsinline
-      webkit-playsinline
-      preload="metadata"
-      src="./otherfiles/origami.720p_fix.mp4"
-    ></video>
+    <div class="titlebox" aria-label="title">
+      ドンペン折り紙の作り方<br>
+      How to Make Donpen Origami<br>
+      ドンペン摺紙的做法<br>
+      唐吉诃德企鹅折纸做法<br>
+      돈펭 종이접기 만드는 법<br>
+      วิธีพับโอริกามิ ดอนเพน
+    </div>
+
+    <div class="videobox">
+      <video
+        controls
+        playsinline
+        webkit-playsinline
+        preload="metadata"
+        src="./otherfiles/origami.720p_fix.mp4"
+      ></video>
+    </div>
   </div>
 </body>
 </html>
