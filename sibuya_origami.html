@@ -7,10 +7,11 @@
   <title>Origami Video</title>
   <style>
     :root{
-      --bg:#000;
-      --fg:#fff;
-      --muted:rgba(255,255,255,0.85);
-      --card:rgba(0,0,0,0.55);
+      --bg:#fff;
+      --fg:#111;
+      --muted:rgba(0,0,0,0.75);
+      --card:rgba(255,255,255,0.92);
+      --border:rgba(0,0,0,0.12);
     }
 
     html, body {
@@ -40,17 +41,13 @@
       margin: 0 auto;
       padding: 10px 12px;
       background: var(--card);
+      border: 1px solid var(--border);
       border-radius: 12px;
       line-height: 1.35;
       text-align: center;
       font-weight: 700;
       color: var(--fg);
       box-sizing: border-box;
-    }
-
-    .titlebox .sub{
-      font-weight: 600;
-      color: var(--muted);
     }
 
     .videobox{
