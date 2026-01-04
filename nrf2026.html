@@ -44,9 +44,11 @@
       background:var(--bg);
       color:var(--fg);
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
-      line-height:1.45;
+      line-height:1.35;
+      font-size:14px;
     }
 
+    /* ===== Topbar ===== */
     .topbar{
       position:sticky;
       top:0;
@@ -58,9 +60,9 @@
     .topbar-inner{
       max-width:1180px;
       margin:0 auto;
-      padding:12px 14px;
+      padding:10px 12px;
       display:flex;
-      gap:10px;
+      gap:8px;
       align-items:center;
       flex-wrap:wrap;
     }
@@ -68,11 +70,12 @@
       font-weight:900;
       letter-spacing:.02em;
       white-space:nowrap;
-      margin-right:6px;
+      margin-right:4px;
+      font-size:14px;
     }
     .tabs{
       display:flex;
-      gap:8px;
+      gap:6px;
       align-items:center;
       flex-wrap:wrap;
     }
@@ -80,11 +83,11 @@
       border:1px solid var(--border);
       background:var(--tab);
       color:var(--fg);
-      padding:8px 10px;
+      padding:7px 9px;
       border-radius:999px;
       cursor:pointer;
       font-weight:800;
-      font-size:13px;
+      font-size:12px;
       white-space:nowrap;
       user-select:none;
     }
@@ -96,7 +99,7 @@
 
     .chips{
       display:none;
-      gap:8px;
+      gap:6px;
       align-items:center;
       flex-wrap:wrap;
     }
@@ -104,11 +107,11 @@
       border:1px solid var(--border);
       background:var(--chip);
       color:var(--fg);
-      padding:7px 10px;
+      padding:6px 8px;
       border-radius:999px;
       cursor:pointer;
       font-weight:800;
-      font-size:13px;
+      font-size:12px;
       white-space:nowrap;
       user-select:none;
     }
@@ -120,19 +123,18 @@
 
     .group{
       display:flex;
-      gap:8px;
+      gap:6px;
       align-items:center;
       flex-wrap:wrap;
     }
     .btn{
       border:1px solid var(--border);
       background:#fff;
-      contains: content;
-      padding:8px 10px;
+      padding:7px 9px;
       border-radius:10px;
       cursor:pointer;
       font-weight:800;
-      font-size:13px;
+      font-size:12px;
       user-select:none;
     }
     .btn:hover{background:#fafafa}
@@ -143,14 +145,14 @@
       gap:8px;
       border:1px solid var(--border);
       background:#fff;
-      padding:8px 10px;
+      padding:7px 9px;
       border-radius:12px;
     }
     .search input{
       border:none;
       outline:none;
-      font-size:14px;
-      width:min(320px, 62vw);
+      font-size:13px;
+      width:min(300px, 55vw);
     }
 
     .toggles{
@@ -163,27 +165,29 @@
       display:flex;
       gap:6px;
       align-items:center;
-      font-size:13px;
+      font-size:12px;
       color:var(--muted);
       user-select:none;
     }
     .toggle input{transform: translateY(1px);}
 
+    /* ===== Main ===== */
     .main{
       max-width:1180px;
       width:100%;
       margin:0 auto;
-      padding:14px;
+      padding:12px;
     }
     .hint{
       color:var(--muted);
-      font-size:13px;
-      margin:0 0 10px 0;
+      font-size:12px;
+      margin:0 0 8px 0;
     }
 
+    /* ===== Board ===== */
     .board{
       border:1px solid var(--border);
-      border-radius:16px;
+      border-radius:14px;
       overflow:hidden;
       box-shadow:var(--shadow);
       background:#fff;
@@ -191,15 +195,15 @@
 
     .colHeader{
       display:grid;
-      grid-template-columns: 140px 1fr;
+      grid-template-columns: 120px 1fr; /* ← 少し詰める */
       border-bottom:1px solid var(--border);
       background:#fff;
     }
     .colHeader .left{
-      padding:10px 12px;
+      padding:8px 10px;
       color:var(--muted);
       font-weight:900;
-      font-size:13px;
+      font-size:12px;
       border-right:1px solid var(--border);
       white-space:nowrap;
     }
@@ -209,20 +213,22 @@
     }
     .colHeader .rightInner{
       display:grid;
-      gap:10px;
-      padding:10px 12px;
-      min-width: 640px;
+      gap:8px;                 /* ← gap詰め */
+      padding:8px 10px;        /* ← padding詰め */
+      min-width: 520px;        /* ← 全体も少し詰め */
     }
+
     .hcell{
       border:1px solid var(--border);
-      border-radius:12px;
-      padding:8px 10px;
+      border-radius:10px;
+      padding:6px 8px;         /* ← 横幅詰め */
       font-weight:900;
-      font-size:13px;
+      font-size:12px;          /* ← 小さく */
       background:#fafafa;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
+      line-height:1.15;
     }
     .hcell.on{
       background:#111827;
@@ -237,16 +243,16 @@
     }
     .row{
       display:grid;
-      grid-template-columns: 140px 1fr;
+      grid-template-columns: 120px 1fr; /* ← headerに合わせる */
       border-bottom:1px solid var(--border);
     }
     .row:last-child{border-bottom:none;}
     .timeBox{
-      padding:12px 12px;
+      padding:10px 10px;
       border-right:1px solid var(--border);
       color:var(--muted);
       font-weight:900;
-      font-size:13px;
+      font-size:12px;
       white-space:nowrap;
       background:#fff;
     }
@@ -256,90 +262,83 @@
     }
     .cellsInner{
       display:grid;
-      gap:10px;
-      padding:10px 12px 12px;
-      min-width: 640px;
+      gap:8px;                 /* ← gap詰め */
+      padding:8px 10px 10px;   /* ← padding詰め */
+      min-width: 520px;
       align-items:stretch;
     }
 
     .card{
       border:1px solid var(--border);
-      border-radius:12px;
-      padding:9px 10px;
+      border-radius:10px;
+      padding:7px 8px;         /* ← 小さく */
       background:#fff;
-      min-height: 52px;
+      min-height: 44px;        /* ← 高さ詰め */
     }
-    .card.common{
-      background:var(--commonBg);
-      border-color:var(--commonBd);
-    }
-    .card.nrf{
-      background:var(--nrfBg);
-      border-color:var(--nrfBd);
-    }
-    .card.break{
-      background:var(--breakBg);
-      border-color:var(--breakBd);
-    }
-    .card.group{
-      background:var(--groupBg);
-      border-color:var(--groupBd);
-    }
+    .card.common{ background:var(--commonBg); border-color:var(--commonBd); }
+    .card.nrf{ background:var(--nrfBg); border-color:var(--nrfBd); }
+    .card.break{ background:var(--breakBg); border-color:var(--breakBd); }
+    .card.group{ background:var(--groupBg); border-color:var(--groupBd); }
 
     .mergeTag{
       display:inline-block;
       background:var(--mergeTagBg);
       color:var(--mergeTagFg);
-      padding:3px 8px;
+      padding:2px 6px;         /* ← 小さく */
       border-radius:999px;
-      font-size:12px;
+      font-size:11px;          /* ← 小さく */
       font-weight:900;
-      margin:0 0 6px 0;
+      margin:0 0 4px 0;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
       max-width:100%;
+      line-height:1.2;
     }
 
     .itemTitle{
       font-weight:900;
-      margin:0 0 4px 0;
-      line-height:1.25;
+      margin:0 0 3px 0;
+      line-height:1.2;
+      font-size:13px;          /* ← タイトル小さく */
     }
     .itemMeta{
       color:var(--muted);
-      font-size:12px;
+      font-size:11px;          /* ← 小さく */
       margin:0;
       white-space:pre-wrap;
+      line-height:1.25;
     }
     .small{
-      font-size:12px;
+      font-size:11px;          /* ← 小さく */
       color:var(--muted);
-      margin-top:6px;
+      margin-top:4px;
       white-space:pre-wrap;
+      line-height:1.25;
     }
 
+    /* Common day: single column */
     .single.rightInner,
     .single.cellsInner{
       grid-template-columns: 1fr !important;
       min-width: 0 !important;
     }
 
+    /* NRF day: columns (min width詰めて1画面内へ寄せる) */
     .rightInner.nrfCols,
     .cellsInner.nrfCols{
-      grid-template-columns: repeat(var(--cols, 6), minmax(220px, 1fr));
+      grid-template-columns: repeat(var(--cols, 6), minmax(160px, 1fr));
     }
 
     @media (max-width: 919px){
-      .colHeader{grid-template-columns: 120px 1fr;}
-      .row{grid-template-columns: 120px 1fr;}
+      .colHeader{grid-template-columns: 110px 1fr;}
+      .row{grid-template-columns: 110px 1fr;}
       .timeBox{font-size:12px;}
       .colHeader .left{font-size:12px;}
       .hcell{font-size:12px;}
-      .card{min-height: 50px;}
       .rightInner.nrfCols,
       .cellsInner.nrfCols{
-        grid-template-columns: repeat(var(--cols, 6), minmax(200px, 1fr));
+        grid-template-columns: repeat(var(--cols, 6), minmax(150px, 1fr));
       }
     }
   </style>
@@ -378,7 +377,7 @@
       date:"2026-01-07",
       mode:"common",
       slots:[
-        { time:"17:10 → 16:00", kind:"common", title:"AA 168/V  羽田 17:10 → JFK 16:00", location:"フライト", note:"空港→ホテル移動／ホテルでゆっくりしましょう" },
+        { time:"17:10 → 16:00", kind:"common", title:"AA 168/V  羽田 17:10 → JFK 16:00", location:"フライト", note:"空港→ホテル移動／ホテルでゆっくりしましょう" }
       ]
     },
     {
@@ -398,7 +397,7 @@
           "● カーネギーホール\n" +
           "● Amazon Go（150 E 53rd St）"
         },
-        { time:"夜", kind:"group", title:"（一部）小林：PwC/博報堂会合", location:"", note:"" },
+        { time:"夜", kind:"group", title:"（一部）小林：PwC/博報堂会合", location:"", note:"" }
       ]
     },
     {
@@ -407,7 +406,7 @@
       date:"2026-01-09",
       mode:"common",
       slots:[
-        { time:"終日", kind:"common", title:"みんなの自由時間", location:"", note:"" },
+        { time:"終日", kind:"common", title:"みんなの自由時間", location:"", note:"" }
       ]
     },
     {
@@ -418,7 +417,7 @@
       slots:[
         { time:"8:00-17:00", kind:"group", title:"Retail Mediaのみの1日セッション", location:"Pier 60, 60 Chelsea Piers", note:"対象：小林・芝崎・柳川・矢部" },
         { time:"9:00-17:00ごろ", kind:"group", title:"＜博報堂リテールツアー＞ 現地店舗視察", location:"", note:"対象：大町・藤森" },
-        { time:"夜", kind:"group", title:"（一部）小林：サントリー主催 会合参加", location:"", note:"" },
+        { time:"夜", kind:"group", title:"（一部）小林：サントリー主催 会合参加", location:"", note:"" }
       ]
     },
 
@@ -432,7 +431,6 @@
         { time:"8:30-9:15", assigns: Object.fromEntries(MEMBERS.map(m => [m, {kind:"nrf", title:"NRF Chairman’s opening remarks: Welcome to The Next Now!", location:"Javits North, Level 5, Vusion Theatre", note:""} ])) },
         { time:"9:15-9:45", assigns: Object.fromEntries(MEMBERS.map(m => [m, {kind:"nrf", title:"Opening Keynote – Rewriting the commerce playbook: Michael Rubin（Fanatics）", location:"Javits North, Level 5, Vusion Theatre", note:""} ])) },
         { time:"9:45-10:15", assigns: Object.fromEntries(MEMBERS.map(m => [m, {kind:"nrf", title:"The AI Platform Shift and the Opportunity Ahead for Retail", location:"Javits North, Level 5, Vusion Theatre", note:""} ])) },
-
         {
           time:"10:30-11:00",
           assigns: {
@@ -491,9 +489,9 @@
 
   const state = {
     dayId: DAYS[0].id,
-    selectedMembers: new Set(MEMBERS), // デフォルト：全員選択
+    selectedMembers: new Set(MEMBERS),
     query: "",
-    onlySelected: true                  // デフォルト：選択メンバーだけ表示ON
+    onlySelected: true
   };
 
   function norm(s){
@@ -597,7 +595,7 @@
   function renderHint(day){
     const el = document.getElementById("hintText");
     if (day.mode === "nrf"){
-      el.textContent = "NRF分担：同じ内容に複数人が参加する場合は、カードを横に結合して表示します。";
+      el.textContent = "NRF分担：同じ内容に複数人が参加する場合は、カードを横に結合して表示（コンパクト表示）。";
     } else {
       el.textContent = "全体日程：全員共通のタイムライン表示。";
     }
@@ -617,7 +615,6 @@
     return `${kind}|||${title}|||${location}|||${note}`;
   }
 
-  // memVisの順番で、同じキーを連続結合（可読性優先）
   function buildMergedCells(memVis, assigns){
     const result = [];
     let i = 0;
