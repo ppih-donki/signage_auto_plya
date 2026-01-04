@@ -1,1 +1,789 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>NYツアー日程（1/7〜1/15） + NRF分担（1/11・1/12）</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --fg:#111827;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --shadow: 0 6px 18px rgba(0,0,0,.06);
 
+      --tab:#f3f4f6;
+      --tabOn:#111827;
+      --tabOnFg:#ffffff;
+
+      --chip:#f3f4f6;
+      --chipOn:#111827;
+      --chipOnFg:#ffffff;
+
+      --commonBg:#f0fdf4;
+      --commonBd:#bbf7d0;
+
+      --nrfBg:#eff6ff;
+      --nrfBd:#bfdbfe;
+
+      --breakBg:#faf5ff;
+      --breakBd:#e9d5ff;
+
+      --groupBg:#fff7ed;
+      --groupBd:#fed7aa;
+
+      --mergeTagBg:#111827;
+      --mergeTagFg:#ffffff;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--fg);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
+      line-height:1.45;
+    }
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:50;
+      background:rgba(255,255,255,.92);
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid var(--border);
+    }
+    .topbar-inner{
+      max-width:1180px;
+      margin:0 auto;
+      padding:12px 14px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .title{
+      font-weight:900;
+      letter-spacing:.02em;
+      white-space:nowrap;
+      margin-right:6px;
+    }
+    .tabs{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .tab{
+      border:1px solid var(--border);
+      background:var(--tab);
+      color:var(--fg);
+      padding:8px 10px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:800;
+      font-size:13px;
+      white-space:nowrap;
+      user-select:none;
+    }
+    .tab[aria-selected="true"]{
+      background:var(--tabOn);
+      color:var(--tabOnFg);
+      border-color:var(--tabOn);
+    }
+
+    .chips{
+      display:none;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background:var(--chip);
+      color:var(--fg);
+      padding:7px 10px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:800;
+      font-size:13px;
+      white-space:nowrap;
+      user-select:none;
+    }
+    .chip[aria-pressed="true"]{
+      background:var(--chipOn);
+      color:var(--chipOnFg);
+      border-color:var(--chipOn);
+    }
+
+    .group{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .btn{
+      border:1px solid var(--border);
+      background:#fff;
+      contains: content;
+      padding:8px 10px;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:800;
+      font-size:13px;
+      user-select:none;
+    }
+    .btn:hover{background:#fafafa}
+
+    .search{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      border:1px solid var(--border);
+      background:#fff;
+      padding:8px 10px;
+      border-radius:12px;
+    }
+    .search input{
+      border:none;
+      outline:none;
+      font-size:14px;
+      width:min(320px, 62vw);
+    }
+
+    .toggles{
+      display:none;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .toggle{
+      display:flex;
+      gap:6px;
+      align-items:center;
+      font-size:13px;
+      color:var(--muted);
+      user-select:none;
+    }
+    .toggle input{transform: translateY(1px);}
+
+    .main{
+      max-width:1180px;
+      width:100%;
+      margin:0 auto;
+      padding:14px;
+    }
+    .hint{
+      color:var(--muted);
+      font-size:13px;
+      margin:0 0 10px 0;
+    }
+
+    .board{
+      border:1px solid var(--border);
+      border-radius:16px;
+      overflow:hidden;
+      box-shadow:var(--shadow);
+      background:#fff;
+    }
+
+    .colHeader{
+      display:grid;
+      grid-template-columns: 140px 1fr;
+      border-bottom:1px solid var(--border);
+      background:#fff;
+    }
+    .colHeader .left{
+      padding:10px 12px;
+      color:var(--muted);
+      font-weight:900;
+      font-size:13px;
+      border-right:1px solid var(--border);
+      white-space:nowrap;
+    }
+    .colHeader .right{
+      overflow:auto;
+      scrollbar-gutter: stable;
+    }
+    .colHeader .rightInner{
+      display:grid;
+      gap:10px;
+      padding:10px 12px;
+      min-width: 640px;
+    }
+    .hcell{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:8px 10px;
+      font-weight:900;
+      font-size:13px;
+      background:#fafafa;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .hcell.on{
+      background:#111827;
+      color:#fff;
+      border-color:#111827;
+    }
+
+    .rows{
+      display:flex;
+      flex-direction:column;
+      background:#fff;
+    }
+    .row{
+      display:grid;
+      grid-template-columns: 140px 1fr;
+      border-bottom:1px solid var(--border);
+    }
+    .row:last-child{border-bottom:none;}
+    .timeBox{
+      padding:12px 12px;
+      border-right:1px solid var(--border);
+      color:var(--muted);
+      font-weight:900;
+      font-size:13px;
+      white-space:nowrap;
+      background:#fff;
+    }
+    .cells{
+      overflow:auto;
+      scrollbar-gutter: stable;
+    }
+    .cellsInner{
+      display:grid;
+      gap:10px;
+      padding:10px 12px 12px;
+      min-width: 640px;
+      align-items:stretch;
+    }
+
+    .card{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:9px 10px;
+      background:#fff;
+      min-height: 52px;
+    }
+    .card.common{
+      background:var(--commonBg);
+      border-color:var(--commonBd);
+    }
+    .card.nrf{
+      background:var(--nrfBg);
+      border-color:var(--nrfBd);
+    }
+    .card.break{
+      background:var(--breakBg);
+      border-color:var(--breakBd);
+    }
+    .card.group{
+      background:var(--groupBg);
+      border-color:var(--groupBd);
+    }
+
+    .mergeTag{
+      display:inline-block;
+      background:var(--mergeTagBg);
+      color:var(--mergeTagFg);
+      padding:3px 8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      margin:0 0 6px 0;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:100%;
+    }
+
+    .itemTitle{
+      font-weight:900;
+      margin:0 0 4px 0;
+      line-height:1.25;
+    }
+    .itemMeta{
+      color:var(--muted);
+      font-size:12px;
+      margin:0;
+      white-space:pre-wrap;
+    }
+    .small{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:6px;
+      white-space:pre-wrap;
+    }
+
+    .single.rightInner,
+    .single.cellsInner{
+      grid-template-columns: 1fr !important;
+      min-width: 0 !important;
+    }
+
+    .rightInner.nrfCols,
+    .cellsInner.nrfCols{
+      grid-template-columns: repeat(var(--cols, 6), minmax(220px, 1fr));
+    }
+
+    @media (max-width: 919px){
+      .colHeader{grid-template-columns: 120px 1fr;}
+      .row{grid-template-columns: 120px 1fr;}
+      .timeBox{font-size:12px;}
+      .colHeader .left{font-size:12px;}
+      .hcell{font-size:12px;}
+      .card{min-height: 50px;}
+      .rightInner.nrfCols,
+      .cellsInner.nrfCols{
+        grid-template-columns: repeat(var(--cols, 6), minmax(200px, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="title">NYツアー日程</div>
+      <div class="tabs" id="dayTabs"></div>
+      <div class="chips" id="memberChips"></div>
+      <div class="group">
+        <button class="btn" id="btnAll">全員</button>
+        <button class="btn" id="btnClear">クリア</button>
+      </div>
+      <div class="search" title="検索（タイトル/場所/キーワード）">
+        🔎 <input id="q" type="search" placeholder="検索（例：NRF / Pier 57 / Rokt / EXPO）" />
+      </div>
+      <div class="toggles" id="toggles">
+        <label class="toggle"><input id="onlySelected" type="checkbox" checked /> 選択メンバーだけ表示（NRFのみ）</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <p class="hint" id="hintText"></p>
+    <div class="board" id="board"></div>
+  </div>
+
+<script>
+  const MEMBERS = ["こばまみ","大町","藤森","芝崎","柳川","矢部"];
+
+  const DAYS = [
+    {
+      id:"d0107",
+      label:"1/7(水)",
+      date:"2026-01-07",
+      mode:"common",
+      slots:[
+        { time:"17:10 → 16:00", kind:"common", title:"AA 168/V  羽田 17:10 → JFK 16:00", location:"フライト", note:"空港→ホテル移動／ホテルでゆっくりしましょう" },
+      ]
+    },
+    {
+      id:"d0108",
+      label:"1/8(木)",
+      date:"2026-01-08",
+      mode:"common",
+      slots:[
+        { time:"午前", kind:"common", title:"自由時間", location:"", note:"" },
+        { time:"11:30〜", kind:"common", title:"店舗視察（食事＋リテール視察）", location:"移動しながら", note:
+          "● Joe’s Shanghai（46 Bowery）小籠包\n" +
+          "● Wegmans Astor Place（770 Broadway）\n" +
+          "● Whole Foods Market（4 Union Sq E）\n" +
+          "● Trader Joe’s（142 E 14th St）\n" +
+          "● Whole Foods Market Daily Shop（301 W 50th St）\n" +
+          "● ロックフェラーセンター（スケートリンク）\n" +
+          "● カーネギーホール\n" +
+          "● Amazon Go（150 E 53rd St）"
+        },
+        { time:"夜", kind:"group", title:"（一部）小林：PwC/博報堂会合", location:"", note:"" },
+      ]
+    },
+    {
+      id:"d0109",
+      label:"1/9(金)",
+      date:"2026-01-09",
+      mode:"common",
+      slots:[
+        { time:"終日", kind:"common", title:"みんなの自由時間", location:"", note:"" },
+      ]
+    },
+    {
+      id:"d0110",
+      label:"1/10(土)",
+      date:"2026-01-10",
+      mode:"common",
+      slots:[
+        { time:"8:00-17:00", kind:"group", title:"Retail Mediaのみの1日セッション", location:"Pier 60, 60 Chelsea Piers", note:"対象：小林・芝崎・柳川・矢部" },
+        { time:"9:00-17:00ごろ", kind:"group", title:"＜博報堂リテールツアー＞ 現地店舗視察", location:"", note:"対象：大町・藤森" },
+        { time:"夜", kind:"group", title:"（一部）小林：サントリー主催 会合参加", location:"", note:"" },
+      ]
+    },
+
+    {
+      id:"d0111",
+      label:"1/11(日) NRF Day1",
+      date:"2026-01-11",
+      mode:"nrf",
+      slots:[
+        { time:"8:00", assigns: Object.fromEntries(MEMBERS.map(m => [m, {kind:"nrf", title:"到着〜入場〜8:30までドーナツ食べる", location:"", note:""} ])) },
+        { time:"8:30-9:15", assigns: Object.fromEntries(MEMBERS.map(m => [m, {kind:"nrf", title:"NRF Chairman’s opening remarks: Welcome to The Next Now!", location:"Javits North, Level 5, Vusion Theatre", note:""} ])) },
+        { time:"9:15-9:45", assigns: Object.fromEntries(MEMBERS.map(m => [m, {kind:"nrf", title:"Opening Keynote – Rewriting the commerce playbook: Michael Rubin（Fanatics）", location:"Javits North, Level 5, Vusion Theatre", note:""} ])) },
+        { time:"9:45-10:15", assigns: Object.fromEntries(MEMBERS.map(m => [m, {kind:"nrf", title:"The AI Platform Shift and the Opportunity Ahead for Retail", location:"Javits North, Level 5, Vusion Theatre", note:""} ])) },
+
+        {
+          time:"10:30-11:00",
+          assigns: {
+            "こばまみ": {kind:"nrf", title:"The Intelligent Store: How dm and Vusion Are Shaping the Future of Retail", location:"River Pavilion, Snowflake Stage", note:""},
+            "大町":     {kind:"nrf", title:"The Intelligent Store: How dm and Vusion Are Shaping the Future of Retail", location:"River Pavilion, Snowflake Stage", note:""},
+            "藤森":     {kind:"nrf", title:"The Intelligent Store: How dm and Vusion Are Shaping the Future of Retail", location:"River Pavilion, Snowflake Stage", note:""},
+            "芝崎":     {kind:"break", title:"休憩/移動", location:"", note:""},
+            "柳川":     {kind:"break", title:"休憩/移動", location:"", note:""},
+            "矢部":     {kind:"break", title:"休憩/移動", location:"", note:""}
+          }
+        }
+      ]
+    },
+
+    {
+      id:"d0112",
+      label:"1/12(月) NRF Day2",
+      date:"2026-01-12",
+      mode:"nrf",
+      slots:[
+        { time:"8:00", assigns: Object.fromEntries(MEMBERS.map(m => [m, {kind:"nrf", title:"到着〜入場〜8:30までドーナツ食べる", location:"", note:""} ])) },
+        { time:"8:30-9:15", assigns: Object.fromEntries(MEMBERS.map(m => [m, {kind:"nrf", title:"From gin to global fandom: Ryan Reynolds and the new rules of brand building", location:"Javits North, Level 5, Vusion Theatre", note:""} ])) }
+      ]
+    },
+
+    {
+      id:"d0113",
+      label:"1/13(火)",
+      date:"2026-01-13",
+      mode:"common",
+      slots:[
+        { time:"10:30", kind:"common", title:"（イベント）開場", location:"Google Office Pier 57", note:"" },
+        { time:"11:00-13:00", kind:"common", title:"（イベント）セッション＋ランチ兼ネットワーキング", location:"Google Office Pier 57", note:"11:00-12:00 セッション／12:00-13:00 ランチ＆ネットワーク" }
+      ]
+    },
+
+    {
+      id:"d0114",
+      label:"1/14(水)",
+      date:"2026-01-14",
+      mode:"common",
+      slots:[
+        { time:"10:00 → 翌日14:35", kind:"common", title:"AA 167  JFK 10:00 → 羽田 14:35（翌日）", location:"フライト", note:"帰国" }
+      ]
+    },
+    {
+      id:"d0115",
+      label:"1/15(木)",
+      date:"2026-01-15",
+      mode:"common",
+      slots:[
+        { time:"14:35", kind:"common", title:"羽田到着（解散）", location:"", note:"" }
+      ]
+    }
+  ];
+
+  const state = {
+    dayId: DAYS[0].id,
+    selectedMembers: new Set(MEMBERS), // デフォルト：全員選択
+    query: "",
+    onlySelected: true                  // デフォルト：選択メンバーだけ表示ON
+  };
+
+  function norm(s){
+    return (s || "").toString().toLowerCase().replace(/\s+/g," ").trim();
+  }
+  function matchQuery(text, q){
+    if (!q) return true;
+    return norm(text).includes(norm(q));
+  }
+  function getDay(){
+    return DAYS.find(d => d.id === state.dayId) || DAYS[0];
+  }
+  function escapeHtml(str){
+    return (str ?? "").toString()
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#39;");
+  }
+  function kindClass(kind){
+    if (kind === "nrf") return "nrf";
+    if (kind === "break") return "break";
+    if (kind === "group") return "group";
+    return "common";
+  }
+
+  function cardHTML(item, mergedNamesText, span){
+    const k = kindClass(item.kind);
+    const title = item.title || "";
+    const loc = item.location || "";
+    const note = item.note || "";
+    const tag = mergedNamesText ? `<div class="mergeTag">${escapeHtml(mergedNamesText)}</div>` : ``;
+    const style = span ? `style="grid-column: span ${span};"` : "";
+    return `
+      <div class="card ${k}" ${style}>
+        ${tag}
+        <p class="itemTitle">${escapeHtml(title)}</p>
+        ${loc ? `<p class="itemMeta">${escapeHtml(loc)}</p>` : ``}
+        ${note ? `<div class="small">${escapeHtml(note)}</div>` : ``}
+      </div>
+    `;
+  }
+
+  function slotTextCommon(slot){
+    return `${slot.time} ${slot.title||""} ${slot.location||""} ${slot.note||""}`;
+  }
+  function slotTextNrf(slot){
+    let t = slot.time + " ";
+    for (const m of MEMBERS){
+      const a = slot.assigns[m];
+      if (a) t += `${a.kind||""} ${a.title||""} ${a.location||""} ${a.note||""} `;
+    }
+    return t;
+  }
+
+  function renderTabs(){
+    const el = document.getElementById("dayTabs");
+    el.innerHTML = "";
+    for (const d of DAYS){
+      const b = document.createElement("button");
+      b.className = "tab";
+      b.textContent = d.label;
+      b.setAttribute("aria-selected", d.id === state.dayId ? "true" : "false");
+      b.onclick = () => {
+        state.dayId = d.id;
+        renderAll();
+        window.scrollTo({top:0, behavior:"instant"});
+      };
+      el.appendChild(b);
+    }
+  }
+
+  function renderMemberChipsIfNeeded(day){
+    const chips = document.getElementById("memberChips");
+    const toggles = document.getElementById("toggles");
+
+    if (day.mode === "nrf"){
+      chips.style.display = "flex";
+      toggles.style.display = "flex";
+      chips.innerHTML = "";
+
+      for (const m of MEMBERS){
+        const b = document.createElement("button");
+        b.className = "chip";
+        b.textContent = m;
+        b.setAttribute("aria-pressed", state.selectedMembers.has(m) ? "true" : "false");
+        b.onclick = () => {
+          if (state.selectedMembers.has(m)) state.selectedMembers.delete(m);
+          else state.selectedMembers.add(m);
+          renderAll();
+        };
+        chips.appendChild(b);
+      }
+    } else {
+      chips.style.display = "none";
+      toggles.style.display = "none";
+    }
+  }
+
+  function renderHint(day){
+    const el = document.getElementById("hintText");
+    if (day.mode === "nrf"){
+      el.textContent = "NRF分担：同じ内容に複数人が参加する場合は、カードを横に結合して表示します。";
+    } else {
+      el.textContent = "全体日程：全員共通のタイムライン表示。";
+    }
+  }
+
+  function visibleMembersForNrf(){
+    if (!state.onlySelected) return MEMBERS.slice();
+    if (state.selectedMembers.size === 0) return MEMBERS.slice();
+    return MEMBERS.filter(m => state.selectedMembers.has(m));
+  }
+
+  function makeKeyFromItem(item){
+    const kind = item?.kind ?? "";
+    const title = item?.title ?? "";
+    const location = item?.location ?? "";
+    const note = item?.note ?? "";
+    return `${kind}|||${title}|||${location}|||${note}`;
+  }
+
+  // memVisの順番で、同じキーを連続結合（可読性優先）
+  function buildMergedCells(memVis, assigns){
+    const result = [];
+    let i = 0;
+
+    while (i < memVis.length){
+      const m = memVis[i];
+      const item = assigns[m];
+      const key = makeKeyFromItem(item);
+
+      let span = 1;
+      let names = [m];
+
+      let j = i + 1;
+      while (j < memVis.length){
+        const mj = memVis[j];
+        const itemj = assigns[mj];
+        const keyj = makeKeyFromItem(itemj);
+        if (keyj !== key) break;
+        span++;
+        names.push(mj);
+        j++;
+      }
+
+      result.push({ item, span, names });
+      i = j;
+    }
+
+    return result;
+  }
+
+  function renderBoard(){
+    const board = document.getElementById("board");
+    const day = getDay();
+    const q = state.query;
+
+    if (day.mode === "common"){
+      const slots = day.slots.filter(s => matchQuery(slotTextCommon(s), q));
+      board.innerHTML = `
+        <div class="colHeader">
+          <div class="left">時間</div>
+          <div class="right">
+            <div class="rightInner single">
+              <div class="hcell on">全員</div>
+            </div>
+          </div>
+        </div>
+        <div class="rows">
+          ${slots.map(s => `
+            <div class="row">
+              <div class="timeBox">${escapeHtml(s.time||"")}</div>
+              <div class="cells">
+                <div class="cellsInner single">
+                  ${cardHTML(s, "", 0)}
+                </div>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      `;
+      return;
+    }
+
+    const memVis = visibleMembersForNrf();
+    const slots = day.slots.filter(s => matchQuery(slotTextNrf(s), q));
+    const cols = memVis.length || 1;
+
+    const headerCells = memVis.map(m => {
+      const on = state.selectedMembers.has(m);
+      return `<div class="hcell ${on ? "on" : ""}">${escapeHtml(m)}</div>`;
+    }).join("");
+
+    const bodyRows = slots.map(slot => {
+      const merged = buildMergedCells(memVis, slot.assigns);
+      const cards = merged.map(g => {
+        const namesText = g.names.length >= 2 ? `参加：${g.names.join(" / ")}` : "";
+        return cardHTML(g.item, namesText, g.span);
+      }).join("");
+
+      return `
+        <div class="row">
+          <div class="timeBox">${escapeHtml(slot.time||"")}</div>
+          <div class="cells">
+            <div class="cellsInner nrfCols" style="--cols:${cols}">
+              ${cards}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    board.innerHTML = `
+      <div class="colHeader">
+        <div class="left">時間</div>
+        <div class="right">
+          <div class="rightInner nrfCols" style="--cols:${cols}">
+            ${headerCells}
+          </div>
+        </div>
+      </div>
+      <div class="rows">
+        ${bodyRows}
+      </div>
+    `;
+
+    syncHorizontalScroll();
+  }
+
+  function syncHorizontalScroll(){
+    const headerRight = document.querySelector(".colHeader .right");
+    if (!headerRight) return;
+    const rows = Array.from(document.querySelectorAll(".row .cells"));
+
+    let lock = false;
+    const syncFrom = (src) => {
+      if (lock) return;
+      lock = true;
+      const x = src.scrollLeft;
+      if (src !== headerRight) headerRight.scrollLeft = x;
+      for (const r of rows){
+        if (r !== src) r.scrollLeft = x;
+      }
+      lock = false;
+    };
+
+    headerRight.addEventListener("scroll", () => syncFrom(headerRight), {passive:true});
+    for (const r of rows){
+      r.addEventListener("scroll", () => syncFrom(r), {passive:true});
+    }
+  }
+
+  function renderAll(){
+    const day = getDay();
+    renderTabs();
+    renderMemberChipsIfNeeded(day);
+    renderHint(day);
+
+    const onlySelected = document.getElementById("onlySelected");
+    onlySelected.checked = state.onlySelected;
+
+    renderBoard();
+  }
+
+  document.getElementById("q").addEventListener("input", (e) => {
+    state.query = e.target.value || "";
+    renderAll();
+  });
+
+  document.getElementById("onlySelected").addEventListener("change", (e) => {
+    state.onlySelected = !!e.target.checked;
+    renderAll();
+  });
+
+  document.getElementById("btnAll").addEventListener("click", () => {
+    state.selectedMembers = new Set(MEMBERS);
+    renderAll();
+  });
+
+  document.getElementById("btnClear").addEventListener("click", () => {
+    state.selectedMembers.clear();
+    state.query = "";
+    document.getElementById("q").value = "";
+    state.onlySelected = true;
+    renderAll();
+  });
+
+  renderAll();
+</script>
+</body>
+</html>
